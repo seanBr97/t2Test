@@ -12,6 +12,6 @@
 // NB: "extern C" to avoid procedure name mangling by C++ compiler
 //
 
-extern "C" _int64 fibX64(_int64);			// fib_x64
+extern "C" _int64 fibX64 (_int64);			// fib_x64
 
 // eof

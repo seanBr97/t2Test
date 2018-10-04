@@ -1,8 +1,9 @@
-
-.data ; start of a data section
-public g ; export variable g
-g QWORD 4 ; declare global variable g initialised to 4
-.code ; start of a code section
+includelib legacy_stdio_definitions.lib
+extrn printf:near	; include printf
+.data				; start of a data section
+public g			; export variable g
+g QWORD 4			; declare global variable g initialised to 4
+.code				; start of a code section
 
 ;t2.asm
 
@@ -63,7 +64,7 @@ _int64 gcd(_int64 a, _int64 b)
 public		gcd				; export function name
 
 gcd:
-		sub rsp, 32			; allocate 32 byte shadow space
+		sub rsp, 32			; allocate 32 byte shadow space		
 		cmp rdx, 0			; if (b==0)
 		jne elseB			; {
 		mov rax, rcx		; return a
@@ -79,14 +80,49 @@ elseB						; else {
 		add rsp, 32			; deallocate shadow space
 		ret 0				; return gcd (b,a%b)
 		
-
+			rcx		rdx			r8		r9			stack
 _int64 q(_int64 a, _int64 b, _int64 c, _int64 d, _int64 e) 
 {
 	_int64 sum = a + b + c + d + e;
 	printf("a = %I64d b = %I64d c = %I64d d = %I64d e = %I64d sum = %I64d\n", a, b, c, d, e, sum);
 	return sum;
 }
+printf - 
+rcx [address of format string]
+rdx [a]
+r8 [b]
+r9 [a+b]
 
-public		
+public		q				; export function name
+
+fq		db 'a = %I64d b = %I64d c = %I64d d = %I64d e = %I64d sum = %I64d\n',0AH, 00H
+
+q:
+		
+		push rbx			; preserve rbx
+		sub rsp, 48			; allocate 48 (8x6) byte shadow space
+		
+		mov r10, [rsp+40]	; r10 = e
+		mov rbx, 0			; clear
+		add rbx, rcx		; total += a
+		add rbx, rdx		; total += b
+		add rbx, r8			; total += c
+		add rbx, r9			; total += d
+		add rbx, r10		; total += e
+		; printf parameters
+		mov [rsp+48], rbx	; total
+		mov [rsp+40], rbx	; e
+		mov [rsp+32], r9	; d
+		mov r9,r8			; c
+		mov r8, rdx			; b
+		mov rdx, rcx		; a
+		lea rcx, fq			; string
+
+		call printf			; call printf
+
+		mov rax, rbx		; returned in rax
+		add rsp, 48			; deallocate shadow space
+		pop rbx				; restore rbx
+		ret 0				; return total
 
 END
