@@ -25,18 +25,11 @@ min1						; }
 		ret 0               ; return v in rax	
 
 
-_int64 p(_int64 i, _int64 j, _int64 k, _int64 l)
-{
-	return min(min(g, i, j), k, l);
-}
-
 ; rcx	rdx		r8		r9
 ; i		j		k		l
 
-min -	rcx			rdx			r8
-		min(g,i,j)	k			l
-
-_int64 min(_int64 a, _int64 b, _int64 c) 
+;min -	rcx			rdx			r8
+;		min(g,i,j)	k			l
 
 public		p				; export function name
 
@@ -55,5 +48,45 @@ p:
 
 		add rsp, 32			; deallocate shadow space
 		ret	0				; return answer in rax
+
+
+_int64 gcd(_int64 a, _int64 b) 
+{
+	if (b == 0) 
+		return a;
+	else 
+		return gcd(b, a % b);
+}
+
+;parameters a - rcx	b - rdx
+
+public		gcd				; export function name
+
+gcd:
+		sub rsp, 32			; allocate 32 byte shadow space
+		cmp rdx, 0			; if (b==0)
+		jne elseB			; {
+		mov rax, rcx		; return a
+		ret 0				; }
+elseB						; else {
+		mov rax, rcx		; rax = a
+		mov rcx, rdx		; b
+		mov rdx, 0			; clear
+		cqo					; rax rdx
+		idiv rbx			; a%b -> rdx
+		call gcd			; gcd (b,a%b) -> remainder in rdx, quotient in rax
+		
+		add rsp, 32			; deallocate shadow space
+		ret 0				; return gcd (b,a%b)
+		
+
+_int64 q(_int64 a, _int64 b, _int64 c, _int64 d, _int64 e) 
+{
+	_int64 sum = a + b + c + d + e;
+	printf("a = %I64d b = %I64d c = %I64d d = %I64d e = %I64d sum = %I64d\n", a, b, c, d, e, sum);
+	return sum;
+}
+
+public		
 
 END
