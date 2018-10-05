@@ -103,4 +103,20 @@ q:
 		pop rbx				; restore rbx
 		ret 0				; return total
 
+public		qns				; export name
+
+fq2		db 'qns', 0AH, 00H
+
+qns:	
+; with shadow space
+		sub rsp, 32			;allocate
+		lea rcx, fq2
+		call printf
+		add rsp, 32			; deallocate
+;without shadow space
+		lea rcx, fq2
+		call printf
+
+		ret 0
+
 END
