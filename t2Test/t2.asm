@@ -54,33 +54,33 @@ p:
 public		gcd				; export function name
 
 gcd:
-		sub rsp, 32			; allocate 32 byte shadow space		
+
 		cmp rdx, 0			; if (b==0)
 		jne elseB			; {
 		mov rax, rcx		; return a
 		ret 0				; }
 elseB:						; else {
 		mov rax, rcx		; rax = a
-		mov rcx, rdx		; b
+		mov rbx, rdx		; b
 		mov rdx, 0			; clear
-		cqo					; rax rdx
+		cdq					; rax rdx
 		idiv rbx			; a%b -> rdx
+		mov rcx, rbx
+		sub rsp, 32			; allocate 32 byte shadow space		
 		call gcd			; gcd (b,a%b) -> remainder in rdx, quotient in rax
-		
 		add rsp, 32			; deallocate shadow space
 		ret 0				; return gcd (b,a%b)
 		
 
 public		q				; export function name
 
-fq		db 'a = %I64d b = %I64d c = %I64d d = %I64d e = %I64d sum = %I64d\n',0AH, 00H
+fq		db	'a = %I64d b = %I64d c = %I64d d = %I64d e = %I64d sum = %I64d', 0AH, 00H
 
 q:
-		
+		mov r10, [rsp+40]	; r10 = e
 		push rbx			; preserve rbx
 		sub rsp, 48			; allocate 48 (8x6) byte shadow space
 		
-		mov r10, [rsp+40]	; r10 = e
 		mov rbx, 0			; clear
 		add rbx, rcx		; total += a
 		add rbx, rdx		; total += b
